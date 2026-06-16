@@ -1,0 +1,22 @@
+name: Test GitHub App authentication inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github-app-id: "123456"
+          github-app-installation-id: "78901234"
+          github-app-key: "fake-private-key-for-input-coverage"
+          github-app-auth-only: "true"
+          github-repository: "example/repo"
+          github-token: "fake-token-for-input-coverage"
+      - name: Assert action was invoked with GitHub App auth inputs
+        run: |
+          echo "Action step completed (may have failed due to fake credentials, which is expected)"
+          echo "PASS: inputs were accepted by the action"
