@@ -1,1 +1,15 @@
-# scala-steward-org-scala-steward-action
+# scala-steward-org/scala-steward-action
+
+🤖 A bot that helps you keeping your Scala projects up-to-date
+
+Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/scala-steward-org/scala-steward-action](https://github.com/scala-steward-org/scala-steward-action).
+
+## Versions
+
+| Version | Tag | Upstream commit |
+|---------|-----|-----------------|
+| v2.86.0 | [`v2.86.0`](https://github.com/chainguard-actions/scala-steward-org-scala-steward-action/tree/v2.86.0) | [`026472e`](https://github.com/scala-steward-org/scala-steward-action/commit/026472ebc0e1f80577b240b249e3dc1494e7041b) |
+
+## Privacy
+
+This Action contacts Chainguard's licensing server to verify authorization. Connection metadata (IP address, GitHub repository identifier, timestamp, and any metadata encoded in the auth token) is transmitted to Chainguard, Inc. even if authorization is denied in accordance with our [Privacy Notice](https://www.chainguard.dev/legal/privacy-notice)
