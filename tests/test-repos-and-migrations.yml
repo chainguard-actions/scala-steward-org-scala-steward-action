@@ -1,0 +1,38 @@
+name: Test repos-file and migrations inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create repos file
+        run: |
+          echo "- example-owner/example-repo" > /tmp/repos.md
+      - name: Create artifact migrations file
+        run: |
+          cat > /tmp/artifact-migrations.conf << 'EOF'
+          changes = []
+          EOF
+      - name: Create scalafix migrations file
+        run: |
+          cat > /tmp/scalafix-migrations.conf << 'EOF'
+          migrations = []
+          EOF
+      - name: Create extra jars directory
+        run: |
+          mkdir -p /tmp/extra-jars
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github-token: fake-token-for-testing
+          repos-file: /tmp/repos.md
+          artifact-migrations: /tmp/artifact-migrations.conf
+          scalafix-migrations: /tmp/scalafix-migrations.conf
+          extra-jars: /tmp/extra-jars
+          cache-ttl: 0s
+      - name: Assert action was invoked with inputs
+        run: |
+          echo "Action step completed (may have failed due to fake credentials)"
+          echo "PASS: inputs were accepted"

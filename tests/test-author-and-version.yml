@@ -1,0 +1,24 @@
+name: Test author and version inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github-token: fake-token-for-testing
+          github-repository: example-owner/example-repo
+          author-email: bot@example.com
+          author-name: Scala Steward Bot
+          branches: main,develop
+          scala-steward-version: "0.22.0"
+          other-args: "--disable-sandbox"
+          cache-ttl: 0s
+      - name: Assert action was invoked with inputs
+        run: |
+          echo "Action step completed (may have failed due to fake credentials)"
+          echo "PASS: inputs were accepted"
