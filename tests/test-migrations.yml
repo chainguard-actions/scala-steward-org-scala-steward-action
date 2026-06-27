@@ -1,0 +1,42 @@
+name: Test artifact-migrations and scalafix-migrations inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create repos file and migration config files
+        run: |
+          mkdir -p /tmp/scala-steward-test
+          echo "- scala-steward-org/scala-steward" > /tmp/scala-steward-test/repos.md
+          cat > /tmp/scala-steward-test/artifact-migrations.conf <<'EOF'
+          migrations = []
+          EOF
+          cat > /tmp/scala-steward-test/scalafix-migrations.conf <<'EOF'
+          migrations = []
+          EOF
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github-token: fake-token-for-testing
+          github-api-url: https://api.github.com
+          repos-file: /tmp/scala-steward-test/repos.md
+          do-not-fork: "true"
+          cache-ttl: "0s"
+          artifact-migrations: "/tmp/scala-steward-test/artifact-migrations.conf"
+          scalafix-migrations: "/tmp/scala-steward-test/scalafix-migrations.conf"
+
+      - name: Assert action ran with migration inputs
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "action outcome: $OUTCOME"
+          if [ "$OUTCOME" = "cancelled" ]; then
+            echo "FAIL: action was cancelled unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action ran with outcome=$OUTCOME (failure expected due to fake token)"

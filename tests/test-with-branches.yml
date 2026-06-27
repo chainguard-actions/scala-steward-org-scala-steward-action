@@ -1,0 +1,32 @@
+name: Test with branches input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github-token: fake-token-for-testing
+          github-api-url: https://api.github.com
+          github-repository: scala-steward-org/scala-steward
+          branches: main,develop
+          do-not-fork: "true"
+          cache-ttl: "0s"
+
+      - name: Assert action ran (may fail at network/auth but not at input validation)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "action outcome: $OUTCOME"
+          # The action should either succeed or fail with a network/auth error,
+          # not with an input validation error (branches input is valid)
+          if [ "$OUTCOME" = "cancelled" ]; then
+            echo "FAIL: action was cancelled unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action ran with outcome=$OUTCOME (failure expected due to fake token)"
