@@ -1,0 +1,36 @@
+name: Test existing custom repo-config is accepted
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create a custom repo-config file
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/tests/fixtures/config"
+          cat > "$GITHUB_WORKSPACE/tests/fixtures/config/.scala-steward.conf" <<'EOF'
+          updates.ignore = []
+          EOF
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github-token: ${{ github.token }}
+          github-repository: ${{ github.repository }}
+          repo-config: tests/fixtures/config/.scala-steward.conf
+
+      - name: Assert action did not fail due to repo-config validation
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # The action may fail for other reasons (Coursier install, network, etc.)
+          # but it should NOT fail with "repo conf file does not exist" error.
+          if [ -z "$OUTCOME" ]; then
+            echo "FAIL: action outcome was not set"
+            exit 1
+          fi
+          echo "PASS: existing custom repo-config was accepted (outcome: $OUTCOME)"

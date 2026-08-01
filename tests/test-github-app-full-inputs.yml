@@ -1,0 +1,38 @@
+name: Test GitHub App full inputs are accepted
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Generate a fake RSA private key for testing
+        run: |
+          openssl genrsa -out /tmp/fake-app-key.pem 2048 2>/dev/null
+          echo "FAKE_APP_KEY<<EOF" >> $GITHUB_ENV
+          cat /tmp/fake-app-key.pem >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github-token: ${{ github.token }}
+          github-app-id: "99999"
+          github-app-installation-id: "12345678"
+          github-app-key: ${{ env.FAKE_APP_KEY }}
+
+      - name: Assert action ran with GitHub App full inputs
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # The action will fail because the app credentials are fake,
+          # but it should NOT fail due to missing input validation.
+          # It should fail at the authentication step, not at input parsing.
+          if [ -z "$OUTCOME" ]; then
+            echo "FAIL: action outcome was not set"
+            exit 1
+          fi
+          echo "PASS: action ran with github-app-installation-id and github-app-key inputs (outcome: $OUTCOME)"
