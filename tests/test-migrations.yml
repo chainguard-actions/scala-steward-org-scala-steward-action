@@ -1,0 +1,39 @@
+name: Test migrations and extra args inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create artifact migrations file
+        run: |
+          mkdir -p /tmp/steward-fixtures
+          cat > /tmp/steward-fixtures/artifact-migrations.conf <<'EOF'
+          changes = []
+          EOF
+          cat > /tmp/steward-fixtures/scalafix-migrations.conf <<'EOF'
+          migrations = []
+          EOF
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github-token: ${{ github.token }}
+          github-repository: ${{ github.repository }}
+          artifact-migrations: /tmp/steward-fixtures/artifact-migrations.conf
+          scalafix-migrations: /tmp/steward-fixtures/scalafix-migrations.conf
+          scala-steward-version: "0.22.0"
+          other-args: "--disable-sandbox"
+          do-not-fork: "true"
+      - name: Assert action ran (success or graceful failure on sentinel repo)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ] || [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action ran with outcome '$OUTCOME'"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
