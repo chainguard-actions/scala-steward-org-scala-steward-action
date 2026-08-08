@@ -15,6 +15,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 | v2.91.0 | [`v2.91.0`](https://github.com/chainguard-actions/scala-steward-org-scala-steward-action/tree/v2.91.0) | [`f86e9e8`](https://github.com/scala-steward-org/scala-steward-action/commit/f86e9e8737e0b4f935ef0ff73a8f62d946bf3c84) |
 | v2.93.0 | [`v2.93.0`](https://github.com/chainguard-actions/scala-steward-org-scala-steward-action/tree/v2.93.0) | [`41bd885`](https://github.com/scala-steward-org/scala-steward-action/commit/41bd88543dcf5e5455689f04d041b095eb901660) |
 | v2.94.0 | [`v2.94.0`](https://github.com/chainguard-actions/scala-steward-org-scala-steward-action/tree/v2.94.0) | [`38cf8f4`](https://github.com/scala-steward-org/scala-steward-action/commit/38cf8f4f38b758abc43334df9aff5ac2d2aa4fe6) |
+| v2.95.0 | [`v2.95.0`](https://github.com/chainguard-actions/scala-steward-org-scala-steward-action/tree/v2.95.0) | [`3e385b8`](https://github.com/scala-steward-org/scala-steward-action/commit/3e385b8d413cf0315a939eebf555628120f5e74c) |
 
 ## Privacy
 
