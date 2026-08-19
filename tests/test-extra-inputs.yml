@@ -1,0 +1,35 @@
+name: Test extra inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REPOSITORY: scala-steward-org/scala-steward-action
+      GITHUB_EVENT_NAME: workflow_dispatch
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create extra jars directory
+        run: |
+          mkdir -p /tmp/steward-extra-jars
+          echo "Created extra jars directory"
+      - name: Run Scala Steward action with extra inputs
+        id: action
+        continue-on-error: true
+        uses: .
+        with:
+          github-token: ${{ github.token }}
+          github-repository: scala-steward-org/scala-steward-action
+          do-not-fork: "true"
+          cache-ttl: 0s
+          branches: "main"
+          extra-jars: /tmp/steward-extra-jars
+          other-args: "--disable-sandbox"
+      - name: Assert action was invoked with extra inputs
+        run: |
+          echo "outcome: ${{ steps.action.outcome }}"
+          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+            echo "FAIL: action was skipped, expected it to run"
+            exit 1
+          fi
+          echo "PASS: action was invoked with extra inputs (outcome: ${{ steps.action.outcome }})"

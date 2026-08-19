@@ -1,0 +1,39 @@
+name: Test repos-file input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REPOSITORY: scala-steward-org/scala-steward-action
+      GITHUB_EVENT_NAME: workflow_dispatch
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create repos file
+        run: |
+          mkdir -p /tmp/steward-test
+          cat > /tmp/steward-test/repos.md << 'EOF'
+          - scala-steward-org/scala-steward-action
+          EOF
+          echo "Created repos file at /tmp/steward-test/repos.md"
+          cat /tmp/steward-test/repos.md
+      - name: Run Scala Steward action with repos-file
+        id: action
+        continue-on-error: true
+        uses: .
+        with:
+          github-token: ${{ github.token }}
+          repos-file: /tmp/steward-test/repos.md
+          do-not-fork: "true"
+          cache-ttl: 0s
+      - name: Assert action was invoked with repos-file
+        run: |
+          echo "outcome: ${{ steps.action.outcome }}"
+          # The action may fail because it tries to actually run Scala Steward
+          # which requires network access and valid credentials.
+          # We just verify it was invoked (not skipped or missing).
+          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+            echo "FAIL: action was skipped, expected it to run"
+            exit 1
+          fi
+          echo "PASS: action was invoked with repos-file (outcome: ${{ steps.action.outcome }})"

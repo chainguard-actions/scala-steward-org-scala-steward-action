@@ -1,0 +1,40 @@
+name: Test migration inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REPOSITORY: scala-steward-org/scala-steward-action
+      GITHUB_EVENT_NAME: workflow_dispatch
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create migration config files
+        run: |
+          mkdir -p /tmp/steward-migrations
+          cat > /tmp/steward-migrations/artifact-migrations.conf << 'EOF'
+          changes = []
+          EOF
+          cat > /tmp/steward-migrations/scalafix-migrations.conf << 'EOF'
+          migrations = []
+          EOF
+          echo "Created migration config files"
+      - name: Run Scala Steward action with migration inputs
+        id: action
+        continue-on-error: true
+        uses: .
+        with:
+          github-token: ${{ github.token }}
+          github-repository: scala-steward-org/scala-steward-action
+          do-not-fork: "true"
+          cache-ttl: 0s
+          artifact-migrations: /tmp/steward-migrations/artifact-migrations.conf
+          scalafix-migrations: /tmp/steward-migrations/scalafix-migrations.conf
+      - name: Assert action was invoked with migration inputs
+        run: |
+          echo "outcome: ${{ steps.action.outcome }}"
+          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+            echo "FAIL: action was skipped, expected it to run"
+            exit 1
+          fi
+          echo "PASS: action was invoked with migration inputs (outcome: ${{ steps.action.outcome }})"

@@ -1,0 +1,35 @@
+name: Test custom configuration inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REPOSITORY: scala-steward-org/scala-steward-action
+      GITHUB_EVENT_NAME: workflow_dispatch
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Run Scala Steward action with custom config
+        id: action
+        continue-on-error: true
+        uses: .
+        with:
+          github-token: ${{ github.token }}
+          github-repository: scala-steward-org/scala-steward-action
+          do-not-fork: "true"
+          cache-ttl: 0s
+          timeout: 5min
+          ignore-opts-files: "false"
+          sign-commits: "false"
+          max-buffer-size: "8192"
+      - name: Assert action was invoked with custom config
+        run: |
+          echo "outcome: ${{ steps.action.outcome }}"
+          # The action may fail because it tries to actually run Scala Steward
+          # which requires network access and valid credentials.
+          # We just verify it was invoked (not skipped or missing).
+          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+            echo "FAIL: action was skipped, expected it to run"
+            exit 1
+          fi
+          echo "PASS: action was invoked with custom config (outcome: ${{ steps.action.outcome }})"

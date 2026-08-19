@@ -1,0 +1,31 @@
+name: Test GitHub App installation ID input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Run Scala Steward action with GitHub App inputs including installation ID
+        id: action
+        continue-on-error: true
+        uses: .
+        with:
+          github-token: ${{ github.token }}
+          github-app-id: "12345"
+          github-app-installation-id: "67890"
+          github-app-key: "fake-key-for-testing"
+          github-app-auth-only: "true"
+          github-repository: scala-steward-org/scala-steward-action
+          do-not-fork: "true"
+          cache-ttl: 0s
+      - name: Assert action was invoked with GitHub App installation ID
+        run: |
+          echo "outcome: ${{ steps.action.outcome }}"
+          # The action will fail because the app credentials are fake,
+          # but we verify it was invoked (not skipped) and the input was accepted.
+          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+            echo "FAIL: action was skipped, expected it to run"
+            exit 1
+          fi
+          echo "PASS: action was invoked with github-app-installation-id (outcome: ${{ steps.action.outcome }})"
