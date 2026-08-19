@@ -1,0 +1,34 @@
+name: Test GitHub App full inputs (app-id, installation-id, app-key)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github-token: ${{ github.token }}
+          github-repository: ${{ github.repository }}
+          do-not-fork: "true"
+          cache-ttl: 0s
+          timeout: 1min
+          github-app-id: "99999"
+          github-app-installation-id: "12345678"
+          github-app-key: "fake-private-key-for-testing"
+
+      - name: Assert action step was executed
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # The action will fail because the GitHub App credentials are fake,
+          # but the step should be executed (not skipped).
+          if [ "$OUTCOME" = "skipped" ]; then
+            echo "FAIL: action step was skipped unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action step was executed with outcome: $OUTCOME"

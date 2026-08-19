@@ -1,0 +1,37 @@
+name: Test repos-file input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REPOSITORY: scala-steward-org/scala-steward-action
+      GITHUB_API_URL: https://api.github.com
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create repos file
+        run: |
+          mkdir -p /tmp/steward-test
+          cat > /tmp/steward-test/repos.md << 'EOF'
+          - scala-steward-org/scala-steward-action
+          EOF
+          echo "Created repos file:"
+          cat /tmp/steward-test/repos.md
+      - id: action
+        uses: .
+        with:
+          github-token: fake-token-for-testing
+          repos-file: /tmp/steward-test/repos.md
+          do-not-fork: "true"
+          cache-ttl: 0s
+          timeout: 1min
+        continue-on-error: true
+      - name: Assert action ran with repos-file
+        run: |
+          echo "Action step outcome: ${{ steps.action.outcome }}"
+          OUTCOME="${{ steps.action.outcome }}"
+          if [ "$OUTCOME" = "skipped" ]; then
+            echo "FAIL: action step was skipped unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action step was executed with outcome: $OUTCOME"

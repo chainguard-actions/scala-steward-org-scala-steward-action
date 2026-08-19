@@ -1,0 +1,34 @@
+name: Test basic usage
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REPOSITORY: scala-steward-org/scala-steward-action
+      GITHUB_API_URL: https://api.github.com
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          github-token: fake-token-for-testing
+          github-repository: scala-steward-org/scala-steward-action
+          do-not-fork: "true"
+          cache-ttl: 0s
+          timeout: 1min
+        continue-on-error: true
+      - name: Assert action ran (step was reached)
+        run: |
+          echo "Action step outcome: ${{ steps.action.outcome }}"
+          # The action may fail because it tries to actually run Scala Steward
+          # with a fake token, but it should at least start and not crash
+          # due to missing inputs or configuration errors.
+          # We verify the step was executed (outcome is either success or failure,
+          # not skipped or missing).
+          OUTCOME="${{ steps.action.outcome }}"
+          if [ "$OUTCOME" = "skipped" ]; then
+            echo "FAIL: action step was skipped unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action step was executed with outcome: $OUTCOME"

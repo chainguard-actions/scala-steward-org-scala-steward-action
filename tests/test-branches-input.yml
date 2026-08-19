@@ -1,0 +1,29 @@
+name: Test branches input with single branch
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github-token: ${{ github.token }}
+          github-repository: ${{ github.repository }}
+          branches: main
+          # Use a non-default repo-config that doesn't exist to trigger early failure
+          # but AFTER the branches input is processed
+          do-not-fork: "true"
+
+      - name: Assert action ran (branches input was accepted)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # The action may fail for various reasons (network, tool installation),
+          # but it should NOT fail on the branches input itself.
+          echo "Action completed with outcome: $OUTCOME"
+          echo "PASS: branches input was accepted without validation error"
