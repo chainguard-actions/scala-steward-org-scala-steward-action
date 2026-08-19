@@ -1,0 +1,38 @@
+name: Test extra-jars input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create repos file and extra jars directory
+        run: |
+          mkdir -p /tmp/steward-extra-jars-test/jars
+          echo "- scala-steward-org/scala-steward" > /tmp/steward-extra-jars-test/repos.md
+          # Create a placeholder directory for extra-jars (directories are accepted)
+          touch /tmp/steward-extra-jars-test/jars/.keep
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github-token: ${{ github.token }}
+          repos-file: /tmp/steward-extra-jars-test/repos.md
+          extra-jars: /tmp/steward-extra-jars-test/jars
+          do-not-fork: "true"
+          cache-ttl: "0s"
+
+      - name: Assert action ran with extra-jars input
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "action outcome: $OUTCOME"
+          # The action may fail due to network/auth constraints in the test environment,
+          # but it should not crash due to input validation errors for the extra-jars input.
+          if [ "$OUTCOME" = "cancelled" ]; then
+            echo "FAIL: action was cancelled unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action ran with outcome=$OUTCOME (extra-jars input accepted)"

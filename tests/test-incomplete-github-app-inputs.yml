@@ -1,4 +1,4 @@
-name: Test invalid repos-file input
+name: Test incomplete GitHub App inputs
 on:
   workflow_dispatch:
 
@@ -13,15 +13,16 @@ jobs:
         continue-on-error: true
         with:
           github-token: ${{ github.token }}
-          repos-file: /nonexistent/path/repos.md
+          github-app-id: "12345"
+          # github-app-key is intentionally omitted to trigger validation error
 
-      - name: Assert action failed with repos-file error
+      - name: Assert action failed with incomplete GitHub App inputs error
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
           if [ "$OUTCOME" != "failure" ]; then
-            echo "FAIL: expected action to fail when repos-file does not exist"
+            echo "FAIL: expected action to fail when github-app-id is set without github-app-key"
             exit 1
           fi
-          echo "PASS: action correctly failed for non-existent repos-file"
+          echo "PASS: action correctly failed for incomplete GitHub App inputs"
