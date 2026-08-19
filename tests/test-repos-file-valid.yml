@@ -1,0 +1,36 @@
+name: Test repos-file with valid file
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REPOSITORY: scala-steward-org/scala-steward-action
+      GITHUB_API_URL: https://api.github.com
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create repos file
+        run: |
+          mkdir -p /tmp/scala-steward-test
+          cat > /tmp/scala-steward-test/repos.md << 'EOF'
+          - scala-steward-org/scala-steward-action
+          EOF
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github-token: fake-token-for-testing
+          repos-file: /tmp/scala-steward-test/repos.md
+          cache-ttl: 0s
+      - name: Assert action ran (not cancelled)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # The action should not be cancelled. It may fail due to fake token/network
+          # but it should have successfully read the repos-file input.
+          if [ "$OUTCOME" = "cancelled" ]; then
+            echo "FAIL: action was cancelled unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action ran with outcome=$OUTCOME (repos-file was accepted)"

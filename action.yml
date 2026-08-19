@@ -1,9 +1,10 @@
 name: Scala Steward GitHub Action
 author: The Scala Steward contributors
-description: "\U0001F916 A bot that helps you keeping your Scala projects up-to-date"
+description: 🤖 A bot that helps you keeping your Scala projects up-to-date
 branding:
   icon: arrow-up-circle
   color: red
+
 inputs:
   artifact-migrations:
     description: |
@@ -123,7 +124,11 @@ inputs:
     default: "true"
     required: false
   mill-version:
-    description: "Mill version to install. Take into account this will\njust affect the global `mill` executable. Scala \nSteward will still respect the version specified in\nyour repository while updating it.\n"
+    description: |
+      Mill version to install. Take into account this will
+      just affect the global `mill` executable. Scala 
+      Steward will still respect the version specified in
+      your repository while updating it.
     default: "1.0.6"
     required: false
   other-args:
@@ -132,7 +137,14 @@ inputs:
       this action as a separate argument.
     required: false
   repo-config:
-    description: "Location of a `.scala-steward.conf` file with default\nvalues.\n\nIf you specify a file and it does not exist in the \nselected branch then this action will fail when it runs.\n\nSee https://github.com/scala-steward-org/scala-steward/blob/main/docs/repo-specific-configuration.md\n"
+    description: |
+      Location of a `.scala-steward.conf` file with default
+      values.
+
+      If you specify a file and it does not exist in the 
+      selected branch then this action will fail when it runs.
+
+      See https://github.com/scala-steward-org/scala-steward/blob/main/docs/repo-specific-configuration.md
     default: ".github/.scala-steward.conf"
     required: false
   repos-file:
@@ -181,8 +193,9 @@ inputs:
       Timeout for external process invocations.
     default: 20min
     required: false
+
 runs:
+  pre: chainguard-phonehome.js
   using: node24
   main: dist/main.js
   post: dist/post.js
-  pre: chainguard-phonehome.js
