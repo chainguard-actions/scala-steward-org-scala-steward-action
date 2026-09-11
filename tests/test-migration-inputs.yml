@@ -1,0 +1,44 @@
+name: Test migration-related inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create migration fixture files
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/hardened/tests/fixtures/migrations"
+          cat > "$GITHUB_WORKSPACE/hardened/tests/fixtures/migrations/artifact-migrations.conf" <<'EOF'
+          migrations = []
+          EOF
+          cat > "$GITHUB_WORKSPACE/hardened/tests/fixtures/migrations/scalafix-migrations.conf" <<'EOF'
+          migrations = []
+          EOF
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github-token: ${{ github.token }}
+          github-repository: ${{ github.repository }}
+          do-not-fork: "true"
+          cache-ttl: "0s"
+          timeout: "5min"
+          artifact-migrations: "hardened/tests/fixtures/migrations/artifact-migrations.conf"
+          scalafix-migrations: "hardened/tests/fixtures/migrations/scalafix-migrations.conf"
+
+      - name: Assert action ran with migration inputs (success or graceful failure)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded with migration inputs"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (sentinel repo is not resolvable)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi

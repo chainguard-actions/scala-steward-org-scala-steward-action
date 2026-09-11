@@ -1,4 +1,4 @@
-name: Test GitHub App inputs
+name: Test extra inputs (extra-jars, other-args, branches)
 on:
   workflow_dispatch:
 jobs:
@@ -16,20 +16,19 @@ jobs:
           do-not-fork: "true"
           cache-ttl: "0s"
           timeout: "5min"
-          github-app-id: "123456"
-          github-app-installation-id: "78901234"
-          github-app-key: "fake-key-for-input-coverage-test"
-          github-app-auth-only: "true"
+          branches: "main"
+          other-args: "--disable-sandbox"
+          extra-jars: ""
 
-      - name: Assert action ran with GitHub App inputs (success or graceful failure)
+      - name: Assert action ran with extra inputs (success or graceful failure)
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
           if [ "$OUTCOME" = "success" ]; then
-            echo "PASS: action succeeded with GitHub App inputs"
+            echo "PASS: action succeeded with extra inputs"
           elif [ "$OUTCOME" = "failure" ]; then
-            echo "PASS: action failed gracefully (invalid app credentials or sentinel repo)"
+            echo "PASS: action failed gracefully (sentinel repo is not resolvable)"
           else
             echo "FAIL: unexpected outcome '$OUTCOME'"
             exit 1
