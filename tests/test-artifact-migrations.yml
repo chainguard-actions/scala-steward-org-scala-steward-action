@@ -1,4 +1,4 @@
-name: Test author-email and author-name inputs
+name: Test artifact-migrations input
 on:
   workflow_dispatch:
 jobs:
@@ -7,10 +7,13 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Create repos file
+      - name: Create repos file and artifact migrations file
         run: |
           mkdir -p /tmp/scala-steward-test
           echo "- scala-steward-org/scala-steward" > /tmp/scala-steward-test/repos.md
+          cat > /tmp/scala-steward-test/artifact-migrations.conf << 'EOF'
+          changes = []
+          EOF
 
       - id: action
         uses: .
@@ -19,12 +22,11 @@ jobs:
           github-token: ${{ github.token }}
           github-api-url: https://api.github.com
           repos-file: /tmp/scala-steward-test/repos.md
-          author-email: "scala-steward@example.com"
-          author-name: "Scala Steward Bot"
+          artifact-migrations: /tmp/scala-steward-test/artifact-migrations.conf
           do-not-fork: "true"
           cache-ttl: "0s"
 
-      - name: Assert action ran with author config inputs (not cancelled)
+      - name: Assert action ran with artifact-migrations input (not cancelled)
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |

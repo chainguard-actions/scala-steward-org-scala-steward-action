@@ -1,4 +1,4 @@
-name: Test author-email and author-name inputs
+name: Test scala-steward-version input
 on:
   workflow_dispatch:
 jobs:
@@ -19,12 +19,11 @@ jobs:
           github-token: ${{ github.token }}
           github-api-url: https://api.github.com
           repos-file: /tmp/scala-steward-test/repos.md
-          author-email: "scala-steward@example.com"
-          author-name: "Scala Steward Bot"
+          scala-steward-version: "0.22.0"
           do-not-fork: "true"
           cache-ttl: "0s"
 
-      - name: Assert action ran with author config inputs (not cancelled)
+      - name: Assert action ran with scala-steward-version input (not cancelled)
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
