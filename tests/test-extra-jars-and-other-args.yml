@@ -1,4 +1,4 @@
-name: Test author and branches inputs
+name: Test extra-jars and other-args inputs
 on:
   workflow_dispatch:
 jobs:
@@ -9,7 +9,7 @@ jobs:
       GITHUB_EVENT_NAME: workflow_dispatch
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Run Scala Steward action with author and branches inputs
+      - name: Run Scala Steward action with extra-jars and other-args inputs
         id: action
         continue-on-error: true
         uses: .
@@ -18,14 +18,13 @@ jobs:
           github-repository: scala-steward-org/scala-steward-action
           do-not-fork: "true"
           cache-ttl: 0s
-          author-email: "steward@example.com"
-          author-name: "Scala Steward Bot"
-          branches: "main,develop"
-      - name: Assert action was invoked with author and branches inputs
+          extra-jars: ""
+          other-args: "--disable-sandbox"
+      - name: Assert action was invoked with extra-jars and other-args inputs
         run: |
           echo "outcome: ${{ steps.action.outcome }}"
           if [ "${{ steps.action.outcome }}" = "skipped" ]; then
             echo "FAIL: action was skipped, expected it to run"
             exit 1
           fi
-          echo "PASS: action was invoked with author/branches inputs (outcome: ${{ steps.action.outcome }})"
+          echo "PASS: action was invoked with extra-jars/other-args inputs (outcome: ${{ steps.action.outcome }})"
