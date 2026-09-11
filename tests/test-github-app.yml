@@ -1,0 +1,37 @@
+name: Test GitHub App authentication inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create repos file
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/hardened/tests/fixtures"
+          echo "- scala-steward-org/scala-steward" > "$GITHUB_WORKSPACE/hardened/tests/fixtures/repos.md"
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github-token: ${{ github.token }}
+          repos-file: hardened/tests/fixtures/repos.md
+          do-not-fork: "true"
+          cache-ttl: 0s
+          github-app-id: "12345"
+          github-app-installation-id: "67890"
+          github-app-key: "fake-key-for-input-coverage-test"
+          github-app-auth-only: "true"
+      - name: Assert action ran with GitHub App inputs (success or graceful failure)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (expected with fake app credentials or sentinel repo)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi

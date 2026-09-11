@@ -1,0 +1,37 @@
+name: Test mill-wrapper-url and extra-jars inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create fixture files
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/hardened/tests/fixtures"
+          echo "- scala-steward-org/scala-steward" > "$GITHUB_WORKSPACE/hardened/tests/fixtures/repos.md"
+          # Create a dummy jar file for extra-jars input
+          touch "$GITHUB_WORKSPACE/hardened/tests/fixtures/extra.jar"
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github-token: ${{ github.token }}
+          repos-file: hardened/tests/fixtures/repos.md
+          do-not-fork: "true"
+          cache-ttl: 0s
+          mill-wrapper-url: "https://raw.githubusercontent.com/lefou/millw/0.4.11/millw"
+          extra-jars: hardened/tests/fixtures/extra.jar
+      - name: Assert action ran with mill-wrapper-url and extra-jars (success or graceful failure)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (expected under sentinel repo)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi

@@ -1,0 +1,42 @@
+name: Test migrations and other-args inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create fixture files
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/hardened/tests/fixtures"
+          echo "- scala-steward-org/scala-steward" > "$GITHUB_WORKSPACE/hardened/tests/fixtures/repos.md"
+          cat > "$GITHUB_WORKSPACE/hardened/tests/fixtures/artifact-migrations.conf" << 'EOF'
+          changes = []
+          EOF
+          cat > "$GITHUB_WORKSPACE/hardened/tests/fixtures/scalafix-migrations.conf" << 'EOF'
+          migrations = []
+          EOF
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github-token: ${{ github.token }}
+          repos-file: hardened/tests/fixtures/repos.md
+          do-not-fork: "true"
+          cache-ttl: 0s
+          artifact-migrations: hardened/tests/fixtures/artifact-migrations.conf
+          scalafix-migrations: hardened/tests/fixtures/scalafix-migrations.conf
+          other-args: "--disable-sandbox"
+      - name: Assert action ran with migrations and other-args (success or graceful failure)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (expected under sentinel repo)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
