@@ -1,4 +1,4 @@
-name: Test GitHub App full inputs
+name: Test optional args inputs
 on:
   workflow_dispatch:
 jobs:
@@ -16,9 +16,10 @@ jobs:
           do-not-fork: "true"
           cache-ttl: 0s
           timeout: 1min
-          github-app-id: "12345"
-          github-app-installation-id: "67890"
-          github-app-key: "fake-private-key-for-testing"
+          scala-steward-version: "0.22.0"
+          other-args: "--disable-sandbox"
+          artifact-migrations: ".github/artifact-migrations.conf"
+          scalafix-migrations: ".github/scalafix-migrations.conf"
 
       - name: Assert action ran (step was reached)
         env:

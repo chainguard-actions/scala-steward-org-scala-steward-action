@@ -1,4 +1,4 @@
-name: Test GitHub App full inputs
+name: Test extra-jars input
 on:
   workflow_dispatch:
 jobs:
@@ -16,9 +16,7 @@ jobs:
           do-not-fork: "true"
           cache-ttl: 0s
           timeout: 1min
-          github-app-id: "12345"
-          github-app-installation-id: "67890"
-          github-app-key: "fake-private-key-for-testing"
+          extra-jars: "/tmp/extra.jar"
 
       - name: Assert action ran (step was reached)
         env:
