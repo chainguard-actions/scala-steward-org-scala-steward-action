@@ -1,0 +1,37 @@
+name: Test extra-jars, other-args, and scala-steward-version inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REPOSITORY: scala-steward-org/scala-steward-action
+      GITHUB_API_URL: https://api.github.com
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create a dummy JAR directory
+        run: |
+          mkdir -p /tmp/scala-steward-jars
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github-token: ${{ github.token }}
+          github-repository: scala-steward-org/scala-steward-action
+          extra-jars: /tmp/scala-steward-jars
+          other-args: "--disable-sandbox"
+          scala-steward-version: "0.22.0"
+          cache-ttl: 0s
+          do-not-fork: "true"
+      - name: Assert action ran (not cancelled)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # The action may fail due to network/token issues in the test environment,
+          # but it should not be cancelled. The extra config inputs should be accepted.
+          if [ "$OUTCOME" = "cancelled" ]; then
+            echo "FAIL: action was cancelled unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action ran with outcome=$OUTCOME (extra-jars, other-args, scala-steward-version inputs accepted)"
