@@ -20,7 +20,7 @@ jobs:
           branches: "main"
           scala-steward-version: "0.22.0"
           other-args: "--disable-sandbox"
-          extra-jars: "/tmp"
+          extra-jars: ""
           artifact-migrations: "${{ github.workspace }}/hardened/tests/fixtures/artifact-migrations.conf"
           scalafix-migrations: "${{ github.workspace }}/hardened/tests/fixtures/scalafix-migrations.conf"
 
