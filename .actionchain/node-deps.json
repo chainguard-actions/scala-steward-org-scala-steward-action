@@ -1,0 +1,17 @@
+{
+  "status": "self_contained",
+  "entries": [
+    {
+      "path": "dist/main.js",
+      "status": "self_contained"
+    },
+    {
+      "path": "dist/pre.js",
+      "status": "self_contained"
+    },
+    {
+      "path": "dist/post.js",
+      "status": "self_contained"
+    }
+  ]
+}
