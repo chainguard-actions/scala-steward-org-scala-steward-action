@@ -4,8 +4,13 @@
   "version": "v2.97.0",
   "commit_sha": "3e5cae868160200afda12b57c150e56cede989ab",
   "url": "https://github.com/scala-steward-org/scala-steward-action",
-  "policy_sha": "d636be7e43ef829af6e853da6b3c7566db9f72fe",
+  "policy_sha": "374911c4be584df24e6da57af2d990570ef0f859",
   "test_policy_sha": "843adf9e4b8f85d0c08b27b9d0b09dd094b54702",
   "test_agent_version": "2",
-  "harden_agent_version": "2"
+  "harden_agent_version": "2",
+  "dist_artifact": {
+    "gcs_uri": "gs://patch-actions-node-artifacts/dist-artifacts/scala-steward-org/scala-steward-action/v2.97.0/sha256-3fa1d987841ad8ae5e709511fc7f4fdf7cef37af879114c7d25a10d568944159.tar.gz",
+    "sha256": "3fa1d987841ad8ae5e709511fc7f4fdf7cef37af879114c7d25a10d568944159",
+    "size_bytes": 1074355
+  }
 }
